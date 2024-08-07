@@ -20,9 +20,9 @@ class Step:
 class Scenario:
 
     _label: str
-    _steps: Tuple[Step]
+    _steps: Tuple[Step, ...]
 
-    def __init__(self, label: str, steps: Tuple[Step]):
+    def __init__(self, label: str, steps: Tuple[Step, ...]):
         self._label = label
         self._steps = steps
 
@@ -34,5 +34,5 @@ class Scenario:
         return self._label
 
     @property
-    def steps(self) -> Tuple[Step]:
+    def steps(self) -> Tuple[Step, ...]:
         return self._steps

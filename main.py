@@ -11,6 +11,7 @@ with open("test.js", 'r', encoding="utf-8") as stream:
 
     print(test.label)
     print(test.description)
+    print(test.feature_label)
     for scenario in test.scenarios:
         print(" + ", scenario.label)
         for step in scenario.steps:

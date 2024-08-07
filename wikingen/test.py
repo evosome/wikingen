@@ -8,14 +8,14 @@ class Test:
     _label: str
     _feature: str
     _description: str
-    _scenarios: Tuple[Scenario]
+    _scenarios: Tuple[Scenario, ...]
 
     def __init__(
             self,
             label: str,
             feature: str,
             description: str,
-            scenarios: Tuple[Scenario]
+            scenarios: Tuple[Scenario, ...]
     ):
         self._label = label
         self._feature = feature
@@ -28,7 +28,7 @@ class Test:
                 f"description=\"{self._description}\")")
 
     @property
-    def scenarios(self) -> Tuple[Scenario]:
+    def scenarios(self) -> Tuple[Scenario, ...]:
         """
         Resolve immutable list of all scenarios found in
         test script.
@@ -43,6 +43,10 @@ class Test:
         :return: Test label
         """
         return self._label
+
+    @property
+    def feature_label(self) -> str:
+        return self._feature
 
     @property
     def description(self) -> str:
