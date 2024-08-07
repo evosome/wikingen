@@ -1,9 +1,3 @@
-/**
- * hello
- * my
- * fried
- */
-
 const path = require("path");
 
 const {
