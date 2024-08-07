@@ -1,9 +1,10 @@
-
+import re
+from re import match
 from typing import List, Tuple
 from esprima.syntax import Syntax
 from esprima.nodes import (
     CallExpression, AsyncArrowFunctionExpression, BlockStatement,
-    ExpressionStatement
+    ExpressionStatement, Node
 )
 
 from wikingen.scenario import Scenario, Step
@@ -12,13 +13,43 @@ from wikingen.parsers.parser_exception import ParserException
 from .template_string import TemplateString
 
 
+_COMMENT_REGEXP = r"(.*)\[(.*)\]"
+
+
+class StepComment:
+
+    _label: str = None
+    _result: str = None
+
+    def __init__(self, comment: Node):
+        self._parse_comment(comment.value)
+
+    def _parse_comment(self, comment: str) -> None:
+        matches = re.findall(_COMMENT_REGEXP, comment)
+        if len(matches) == 0:
+            self._label = comment
+            return
+        if len(matches) > 1:
+            raise ParserException("Found more than one results of step")
+        self._label, self._result = matches[0]
+
+    @property
+    def label(self) -> str:
+        return self._label
+
+    @property
+    def result(self) -> str:
+        return self._result
+
+
+
 class ScenarioStep:
 
-    _comment: str
+    _comment: StepComment
 
     def __init__(self, expression_statement: ExpressionStatement):
         comments = expression_statement.leadingComments
-        self._comment = comments[-1].value if comments and len(comments) > 0 else None
+        self._comment = StepComment(comments[-1]) if comments and len(comments) > 0 else None
 
     @property
     def is_unnamed(self) -> bool:
@@ -26,7 +57,11 @@ class ScenarioStep:
 
     @property
     def comment(self) -> str:
-        return self._comment
+        return self._comment.label
+
+    @property
+    def result(self) -> str:
+        return self._comment.result
 
 
 class ScenarioBlock:
@@ -40,7 +75,7 @@ class ScenarioBlock:
 
     @property
     def steps(self) -> Tuple[Step, ...]:
-        return tuple([Step(s.comment) for s in self._steps])
+        return tuple([Step(s.comment, s.result) for s in self._steps])
 
 
 class ScenarioExpression:

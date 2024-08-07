@@ -15,4 +15,4 @@ with open("test.js", 'r', encoding="utf-8") as stream:
     for scenario in test.scenarios:
         print(" + ", scenario.label)
         for step in scenario.steps:
-            print("   o ", step.label)
+            print("   o ", step.label, " |=> ", step.result if step.has_result() else "[Нет результата]")
