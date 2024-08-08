@@ -1,18 +1,10 @@
 
-from json import dumps
-from esprima import parse as json_parse, toDict
-from jsonpath_ng.ext import parse
-
 from wikingen.parsers import default
+from wikingen.docformats.html import HTMLFormat
 
 with open("test.js", 'r', encoding="utf-8") as stream:
     text = stream.read()
     test = default.parse(text)
 
-    print(test.label)
-    print(test.description)
-    print(test.feature_label)
-    for scenario in test.scenarios:
-        print(" + ", scenario.label)
-        for step in scenario.steps:
-            print("   o ", step.label, " |=> ", step.result if step.has_result() else "[Нет результата]")
+    with open("doc.html", 'w') as out:
+        out.write(HTMLFormat().format(test))
