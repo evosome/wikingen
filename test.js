@@ -1,122 +1,37 @@
-/*
-Пользователи:
-
-*/
-const path = require("path");
-
+/**
+ * Тест для проверки работоспособности
+ * @user user_auto335
+ * @user user_auto356
+ * @pre Блок предустановки
+ */
 const {
   AUTOTEST_USERS,
   MENU_NAME,
   MULTIVIEW,
   BUTTON_CREATE_PAGE,
-  BUTTON_IMPORT_CONTENT,
-  CMS_SIDEBAR_BUTTONS,
-  AUTOTEST_SELECTOR,
   CMS_ELEMENTS,
-  BUTTON_VIEW_CONTENT,
-  DIALOG_CONTENT_TYPES,
-  BUTTON_EXPORT_CONTENT,
-  DIALOG_UPLOAD_FILE,
-  CMS_GENERAL_SETTINGS,
-  FIELD_TYPES_ENUM,
-  CMS_ELEMENT_EDITOR_BUTTONS,
-  BUTTON_SAVE,
-  MODAL_OK_BUTTON_LABEL,
-  DIALOG_MULTIVIEW_SAVED,
-  VIEW_CREATE_TIMEOUT,
-  MODAL_CANCEL_BUTTON_LABEL,
-  DATA_TYPE,
-  BUTTON_ADD_ELEMENT_CMS_SELECTOR,
-  BUTTON_ADD_WIDGET_CMS,
-  NAME_TABS_CMS
-} = require("../../../../constants");
-
-const {
-  seeCmsElementWithSettings,
-  filterInTable,
-  removeViewSettingElementsFromTableView,
-  addCmsElement,
-  fillFieldValue
-} = require("../../../../utils/helpers");
+  CMS_ELEMENT_ACTION_BUTTONS,
+  CMS_MODAL_ID,
+  DATA_AUTOMATION_KEY,
+} = require("../../../../constants.js");
 
 const {
   openPageWithAuthentication,
-  openPage
-} = require("../../../../utils/index").TestsHelpers;
+  seeCmsElementWithSettings,
+  addCmsElement
+} = require("../../../../utils/helpers.js");
 
-const AUTOTEST_USER = AUTOTEST_USERS.user327;
-const SCENARIO_LABEL = "CMSCommandbarImportExportButton";
+const AUTOTEST_USER = AUTOTEST_USERS.user335;
+const SCENARIO_LABEL = "CMSElementActionBarButtons";
 
-const UPLOAD_FILES_PATH = path.resolve(__dirname, "uploadFiles");
+Feature(`@${SCENARIO_LABEL} - Кнопки быстрого действия для добавления, удаления, дублирования и редактирования элемента`);
 
-const TEST_IMPORT_WITH_CLASSES_FILE = path.resolve(
-  UPLOAD_FILES_PATH,
-  "test_import_with_classes.json"
-);
-const TEST_IMPORT_WITH_IMAGES = path.resolve(
-  UPLOAD_FILES_PATH,
-  "test_import_with_images.json"
-);
-const TEST_IMPORT_WITH_WIDGET = path.resolve(
-  UPLOAD_FILES_PATH,
-  "test_import_widget.json"
-);
-const TEST_IMPORT_WITH_INSTANCE = path.resolve(
-  UPLOAD_FILES_PATH,
-  "test_import_with_instance.json"
-);
-
-const DEFAULT_CLASS_NAME = "CONTAINER DEFAULT";
-const ACTIVE_CLASS_NAME = "CONTAINER ACTIVE";
-const HOVER_CLASS_NAME = "HEADER HOVER";
-const FOCUS_CLASS_NAME = "HEADER FOCUS";
-
-const TEST_PUBLIC_IMAGE_NO_CACHE_NAME =
-  "Изображение с публичной ссылкой и без кэширования";
-const TEST_PUBLIC_IMAGE_CACHED_NAME =
-  "Изображение с публичной ссылкой и кэшированием";
-const TEST_PRIVATE_IMAGE = "Изображение без публичной ссылки";
-
-const TEST_WIDGET_NAME = "widget_for_autotest";
-const TEST_WIDGET_NAVIGATION_NAME = "Виджет для импорта";
-
-const TEST_IMPORT_QBUTTON_TITLE = "Тест импорта";
-const TEST_IMPORT_QBUTTON_NAV_NAME =
-  "Проверка импорта. Кнопка быстрого создания";
-const TEST_INSTANCE_VIEW_NAME = "Тест импорта. Представление сущности";
-
-const MODAL_ID = "dialog-dialog-add-element";
-
-const FILE_IMAGE_LINK =
-  "https://testing-content-test.doctrixcloud.ru/api/fs/public/link/05335faa394b41b0bfd46fca83b6a5f4";
-
-const CMS_TEST_PAGES = {
-  exportView: {
-    viewName: "autotest_cms_export",
-    name: "CMS Проверка экспорта"
-  }
-}
-
-/**
- * @description
- *  Функция, определяющая есть ли имя CSS класса в списке классов
- * @param {*} I
- * @param {{classType: string, className: string}} params
- * @param {*} params.classType - Тип класса (DEFAULT, ACTIVE, HOVER, FOCUS)
- * @param {*} params.className - имя CSS класса
- */
-const seeCmsCssClass = async (I, { classType, className }) => {
-  await I.xPathCheck(`
-    //li[@${AUTOTEST_SELECTOR}="${classType}-class"]
-    //div[contains(@${AUTOTEST_SELECTOR}, "${className}")]`);
-};
-
-Feature(`@${SCENARIO_LABEL} - CMS импорт/экспорт представлений`);
+//!SECTION - проверка кнопки "Добавить элемент"
 
 Scenario(
-  `Проверка работоспособности кнопки "Импортировать контент" с настроенными классами #${SCENARIO_LABEL}-1`,
+  `Проверка работоспособности кнопки "Добавить элемент" для контейнеров #${SCENARIO_LABEL}-1`,
   async ({ I }) => {
-    // Переход на страницу "Управление контентом" -> "Настройка представлений" [Открыто]
+    // Авторизоваться и перейти в "Управление контентом" -> "Настройка представлений" [Окрыта станица "Управление контентом" -> "Настройка представлений"]
     await openPageWithAuthentication({
       I,
       user: AUTOTEST_USER,
@@ -124,128 +39,39 @@ Scenario(
       pageData: MULTIVIEW[0],
     });
 
-    // Нажать кнопку "Создать"
+    // Нажать кнопку "Создать страницу" [Кнопка нажата]
     await I.clickButtonView({ label: BUTTON_CREATE_PAGE });
 
-    // Нажать кнопку "Импортировать контент"
-    await I.clickButtonView({ label: BUTTON_IMPORT_CONTENT });
-
-    // Загрузить файл представления в модальном окне
-    await I.loadFile({
-      filePath: TEST_IMPORT_WITH_CLASSES_FILE,
-      dialogId: "dialog-upload-file",
+    // Выделить элемент "корневой элемент" [Корневой элемент выделен]
+    await I.selectCmsElementByNavigationName({
+      elementName: CMS_ELEMENTS.base.rootElement.name,
     });
 
-    // Нажать кнопку "Список классов" в сайдбаре и открыть список классов
-    await I.clickSidebarButtonCms({
-      buttonName: CMS_SIDEBAR_BUTTONS.classes,
+    // Нажать кнопку "Добавить элемент" для корневого элемента (считаем, что кнопка видна)
+    await I.clickCmsElementActionButton({
+      elementName: CMS_ELEMENTS.base.rootElement.name,
+      buttonName: CMS_ELEMENT_ACTION_BUTTONS.add,
     });
 
-    // Проверить наличие стандартного класса
-    await seeCmsCssClass(I, {
-      classType: "DEFAULT",
-      className: DEFAULT_CLASS_NAME,
+    // Выбрать элемент "заголовок" в модальном окне и нажать добавить [Элемент выбран и добавлен]
+    await I.selectFromModalAddCmsElement({
+      selector: CMS_ELEMENTS.printing.header.type,
+      modalId: "dialog-Добавление элемента"
     });
 
-    // Проверить наличие активного класса
-    await seeCmsCssClass(I, {
-      classType: "ACTIVE",
-      className: ACTIVE_CLASS_NAME,
-    });
-
-    // Проверить наличие класса при наведении
-    await seeCmsCssClass(I, {
-      classType: "HOVER",
-      className: HOVER_CLASS_NAME,
-    });
-
-    // Проверить наличие класса при фокусе
-    await seeCmsCssClass(I, {
-      classType: "FOCUS",
-      className: FOCUS_CLASS_NAME,
-    });
-  }
-);
-
-Scenario(
-  `Проверка работоспособности кнопки "Импортировать контент" с элементами медиа (изображения) с публичными ссылками и без #${SCENARIO_LABEL}-2`,
-  async ({ I }) => {
-    // Переход на страницу "Управление контентом" -> "Настройка представлений"
-    await openPageWithAuthentication({
-      I,
-      user: AUTOTEST_USER,
-      menuName: MENU_NAME.contentManagement,
-      pageData: MULTIVIEW[0],
-    });
-
-    // Нажать кнопку "Создать"
-    await I.clickButtonView({ label: BUTTON_CREATE_PAGE });
-
-    // Нажать кнопку "Импортировать контент"
-    await I.clickButtonView({ label: BUTTON_IMPORT_CONTENT });
-
-    // Загрузить файл представления в модальном окне
-    await I.loadFile({
-      filePath: TEST_IMPORT_WITH_IMAGES,
-      dialogId: "dialog-upload-file",
-    });
-
-    // Проверить отображается ли изображения с публичными ссылками
-
-    // с кэшированием
-    await I.seeCmsImageContent({
-      imageNavigationName: TEST_PUBLIC_IMAGE_CACHED_NAME,
-    });
-
-    // без кэширования
-    await I.seeCmsImageContent({
-      imageNavigationName: TEST_PUBLIC_IMAGE_NO_CACHE_NAME,
-    });
-
-    // Проверить не отображается ли изображение с приватной ссылкой
-    await I.seeCmsImageContent({
-      imageNavigationName: TEST_PRIVATE_IMAGE,
-      imageVisible: false,
-    });
-  }
-);
-
-Scenario(
-  `Проверка работоспособности кнопки "Импортировать контент" с виджетом #${SCENARIO_LABEL}-3`,
-  async ({ I }) => {
-    // Переход на страницу "Управление контентом" -> "Настройка представлений"
-    await openPageWithAuthentication({
-      I,
-      user: AUTOTEST_USER,
-      menuName: MENU_NAME.contentManagement,
-      pageData: MULTIVIEW[0],
-    });
-
-    // Нажать кнопку "Создать"
-    await I.clickButtonView({ label: BUTTON_CREATE_PAGE });
-
-    // Нажать кнопку "Импортировать контент"
-    await I.clickButtonView({ label: BUTTON_IMPORT_CONTENT });
-
-    // Загрузить файл представления в модальном окне
-    await I.loadFile({
-      filePath: TEST_IMPORT_WITH_WIDGET,
-      dialogId: "dialog-upload-file",
-    });
-
-    // Проверить загрузился ли виджет с изображением
+    // Проверить, что элемент "заголовок" появился [Элемент появился]
     await seeCmsElementWithSettings(I, {
-      elementType: CMS_ELEMENTS.services.widget.type,
-      elementName: TEST_WIDGET_NAVIGATION_NAME,
-      settings: { widgetName: TEST_WIDGET_NAME },
+      elementName: CMS_ELEMENTS.printing.header.name,
+      elementType: CMS_ELEMENTS.printing.header.type,
+      parentElementName: CMS_ELEMENTS.base.rootElement.name,
     });
   }
 );
 
 Scenario(
-  `Проверка работоспособности кнопки "Импортировать контент" с представлением сущности #${SCENARIO_LABEL}-4`,
+  `Проверка отсутствия кнопки "Добавить элемент" у неконтейнеров #${SCENARIO_LABEL}-2`,
   async ({ I }) => {
-    // Переход на страницу "Управление контентом" -> "Настройка представлений"
+    // Авторизоваться и перейти в "Управление контентом" -> "Настройка представлений" [Окрыта страница "Управление контентом" -> "Настройка представлений"]
     await openPageWithAuthentication({
       I,
       user: AUTOTEST_USER,
@@ -253,215 +79,242 @@ Scenario(
       pageData: MULTIVIEW[0],
     });
 
-    // Нажать кнопку "Создать"
+    // Нажать кнопку "Создать страницу" [Кнопка нажата, перешли на страницу создания представления]
     await I.clickButtonView({ label: BUTTON_CREATE_PAGE });
 
-    // Нажать кнопку "Импортировать контент"
-    await I.clickButtonView({ label: BUTTON_IMPORT_CONTENT });
-
-    // Загрузить файл представления в модальном окне
-    await I.loadFile({
-      filePath: TEST_IMPORT_WITH_INSTANCE,
-      dialogId: DIALOG_UPLOAD_FILE,
-    });
-
-    // Проверить не отобразилось ли окно ошибки
-    await I.dontSeeDialogWithType(DIALOG_CONTENT_TYPES.error);
-
-    // нажать кнопку Показывать контент
-    await I.clickButtonView({ label: BUTTON_VIEW_CONTENT });
-
-    // Проверить видно ли представление сущности в онке предосмотра
-    await seeCmsElementWithSettings(I, {
-      elementType: CMS_ELEMENTS.advanced.instanceView.type,
-      elementName: TEST_INSTANCE_VIEW_NAME,
-      settings: {
-        xContent: `//div[@${AUTOTEST_SELECTOR}="table" and @data-loaded="true"]`,
-      },
-    });
-
-    // Проверить видна ли кнопка в окне предосмотра
-    await seeCmsElementWithSettings(I, {
-      elementType: CMS_ELEMENTS.base.quickButton.type,
-      elementName: TEST_IMPORT_QBUTTON_NAV_NAME,
-      settings: { title: TEST_IMPORT_QBUTTON_TITLE, icon: "Import" },
-    });
-
-    // Нажать на кнопку быстрого действия и перейти по ссылке
-    await I.xPathClick(`//a[@title="${TEST_IMPORT_QBUTTON_TITLE}"]`);
-    await I.waitForNetworkResponses();
-    await I.waitIdle();
-
-    // Проверить перешли ли поссылке
-    await I.seeInCurrentUrl("ui/test_view_for_cms_import");
-  }
-);
-
-Scenario(
-  `Проверка работоспособности кнопки "Экспортировать контент" с виджетом #${SCENARIO_LABEL}-5`,
-  async ({ I }) => {
-    // Переход на страницу "Управление контентом" -> "Настройка представлений"
-    await openPageWithAuthentication({
-      I,
-      user: AUTOTEST_USER,
-      menuName: MENU_NAME.contentManagement,
-      pageData: MULTIVIEW[0],
-    });
-
-    // Отфильтровать список по названию представления
-    await filterInTable({
-      I,
-      nameFilter: "Отображаемое имя",
-      valueFilter: CMS_TEST_PAGES.exportView.viewName
-    });
-
-    // Удалить тестовое представление
-    await removeViewSettingElementsFromTableView(
-      { I },
-      CMS_TEST_PAGES.exportView.name
-    );
-
-    // Нажать кнопку "Создать"
-    await I.clickButtonView({ label: BUTTON_CREATE_PAGE });
-
-    // Открыть общие настройки и заполнить поля:
-    await I.clickSidebarButtonCms({
-      buttonName: CMS_SIDEBAR_BUTTONS.generalSettings,
-      hasRequest: false,
-    });
-
-    // Заполнить название
-    await fillFieldValue(I, {
-      selector: CMS_GENERAL_SETTINGS.name,
-      value: CMS_TEST_PAGES.exportView.viewName,
-      type: FIELD_TYPES_ENUM.String,
-    });
-
-    // Заполнить отображаемое имя
-    await fillFieldValue(I, {
-      selector: CMS_GENERAL_SETTINGS.displayName,
-      value: CMS_TEST_PAGES.exportView.name,
-      type: FIELD_TYPES_ENUM.String,
-    });
-
-    // Добавить элемент "Виджет"
-    await I.xPathClick(
-      `//div[@${DATA_TYPE}="CONTAINER"]//button[@${AUTOTEST_SELECTOR}="${BUTTON_ADD_ELEMENT_CMS_SELECTOR}"]`
-    );
-    await I.waitIdle();
-
-    // перейти на таб "Сервисы"
-    await I.clickDialogViewButtonTabList({
-      modalId: MODAL_ID,
-      label: NAME_TABS_CMS.services,
-    });
-
-    //выбрать виджет и добавить его
-    await I.xPathClick(
-      `//div[@${AUTOTEST_SELECTOR}="${TEST_WIDGET_NAME}"]//button[@${AUTOTEST_SELECTOR}="${BUTTON_ADD_WIDGET_CMS}-${TEST_WIDGET_NAME}"]`
-    );
-    await I.waitForNetworkResponses();
-    await I.waitIdle();
-
-    // Сохранить представление
-    await I.clickButtonView({ label: BUTTON_SAVE.ru });
-    await I.clickModalButton(MODAL_CANCEL_BUTTON_LABEL, {
-      modalId: DIALOG_MULTIVIEW_SAVED,
-    });
-    await I.waitForTimeout(VIEW_CREATE_TIMEOUT);
-
-    // Нажать кнопку "Экспортировать контент"
-    await I.clickButtonView({ label: BUTTON_EXPORT_CONTENT });
-
-    // Проверить не отобразилось ли окно ошибки
-    await I.dontSeeDialogWithType(DIALOG_CONTENT_TYPES.error);
-  }
-);
-
-Scenario(
-  `Проверка работоспособности кнопки "Экспортировать контент" с изображением #${SCENARIO_LABEL}-6`,
-  async ({ I }) => {
-    // Переход на страницу "Управление контентом" -> "Настройка представлений"
-    await openPageWithAuthentication({
-      I,
-      user: AUTOTEST_USER,
-      menuName: MENU_NAME.contentManagement,
-      pageData: MULTIVIEW[0],
-    });
-
-    // Отфильтровать список по названию представления
-    await filterInTable({
-      I,
-      nameFilter: "Отображаемое имя",
-      valueFilter: CMS_TEST_PAGES.exportView.viewName
-    });
-
-    // Удалить тестовое представление
-    await removeViewSettingElementsFromTableView(
-      { I },
-      CMS_TEST_PAGES.exportView.name
-    );
-
-    // Нажать кнопку "Создать"
-    await I.clickButtonView({ label: BUTTON_CREATE_PAGE });
-
-    // Открыть общие настройки и заполнить поля:
-    await I.clickSidebarButtonCms({
-      buttonName: CMS_SIDEBAR_BUTTONS.generalSettings,
-      hasRequest: false,
-    });
-
-    // Заполнить название
-    await fillFieldValue(I, {
-      selector: CMS_GENERAL_SETTINGS.name,
-      value: CMS_TEST_PAGES.exportView.viewName,
-      type: FIELD_TYPES_ENUM.String,
-    });
-
-    // Заполнить отображаемое имя
-    await fillFieldValue(I, {
-      selector: CMS_GENERAL_SETTINGS.displayName,
-      value: CMS_TEST_PAGES.exportView.name,
-      type: FIELD_TYPES_ENUM.String,
-    });
-
-    // Добавить элемент "Изображение"
+    // Добавить элемент "загловок" в представление [Заголовок добавлен в представление]
     await addCmsElement(I, {
-      elementName: CMS_ELEMENTS.media.image.name,
-      elementType: CMS_ELEMENTS.media.image.type
+      elementName: CMS_ELEMENTS.printing.paragraph.name,
+      elementType: CMS_ELEMENTS.printing.paragraph.type,
     });
 
-    // Выбрать тип загрузки файла
-    await fillFieldValue(I, {
-      selector: "fileInsertType",
-      value: "Внешняя ссылка",
-      type: FIELD_TYPES_ENUM.Select
+    // Проверить отсутствует ли кнопка "Добавить элемент" [Кнопка "Добавить элемент" отсутствует]
+    await I.seeCmsElementActionButton({
+      elementName: CMS_ELEMENTS.printing.paragraph.name,
+      buttonName: CMS_ELEMENT_ACTION_BUTTONS.add,
+      buttonVisible: false,
+    });
+  }
+);
+
+//!SECTION - проверка кнопки "Удалить элемент"
+
+Scenario(
+  `Проверка отсутствия кнопки "Удалить элемент" у корневого элемента #${SCENARIO_LABEL}-3`,
+  async ({ I }) => {
+    // Авторизоваться и перейти в "Управление контентом" -> "Настройка представлений" [Окрыта страница "Управление контентом" -> "Настройка представлений"]
+    await openPageWithAuthentication({
+      I,
+      user: AUTOTEST_USER,
+      menuName: MENU_NAME.contentManagement,
+      pageData: MULTIVIEW[0],
     });
 
-    // Ввести значение внешней ссылки
-    await fillFieldValue(I, {
-      selector: "fileLink",
-      value: FILE_IMAGE_LINK,
-      type: FIELD_TYPES_ENUM.String
+    // Нажать кнопку "Создать страницу" [Кнопка нажата, перешли на страницу создания представления]
+    await I.clickButtonView({ label: BUTTON_CREATE_PAGE });
+
+    // Выделить элемент "корневой элемент" [Корневой элемент выделен]
+    await I.selectCmsElementByNavigationName({
+      elementName: CMS_ELEMENTS.base.rootElement.name,
     });
 
-    // Применить изменения
-    await I.clickCommandPanelButtonCms({
-      buttonName: CMS_ELEMENT_EDITOR_BUTTONS.apply,
-      hasRequest: false
+    // Проверить отсутствует ли кнопка "Удалить элемент" [Кнопка "Удалить элемент" отсутствует]
+    await I.seeCmsElementActionButton({
+      elementName: CMS_ELEMENTS.printing.paragraph.name,
+      buttonName: CMS_ELEMENT_ACTION_BUTTONS.delete,
+      buttonVisible: false,
+    });
+  }
+);
+
+Scenario(
+  `Проверка работоспособности кнопки "Удалить элемент" #${SCENARIO_LABEL}-4`,
+  async ({ I }) => {
+    // Авторизоваться и перейти в "Управление контентом" -> "Настройка представлений" [Окрыта страница "Управление контентом" -> "Настройка представлений"]
+    await openPageWithAuthentication({
+      I,
+      user: AUTOTEST_USER,
+      menuName: MENU_NAME.contentManagement,
+      pageData: MULTIVIEW[0],
     });
 
-    // Сохранить представление
-    await I.clickButtonView({ label: BUTTON_SAVE.ru });
-    await I.clickModalButton(MODAL_CANCEL_BUTTON_LABEL, {
-      modalId: DIALOG_MULTIVIEW_SAVED,
+    // Нажать кнопку "Создать страницу" [Кнопка нажата, перешли на страницу создания представления]
+    await I.clickButtonView({ label: BUTTON_CREATE_PAGE });
+
+    // Выделить элемент "корневой элемент" [Корневой элемент выделен]
+    await I.selectCmsElementByNavigationName({
+      elementName: CMS_ELEMENTS.base.rootElement.name,
     });
-    await I.waitForTimeout(VIEW_CREATE_TIMEOUT);
 
-    // Нажать кнопку "Экспортировать контент"
-    await I.clickButtonView({ label: BUTTON_EXPORT_CONTENT });
+    // Добавить элемент "заголовок" (элемент уже выделен) [Элемент добавлен и выделен в представлении]
+    await addCmsElement(I, {
+      elementName: CMS_ELEMENTS.printing.header.name,
+      elementType: CMS_ELEMENTS.printing.header.type,
+    });
 
-    // Проверить не отобразилось ли окно ошибки
-    await I.dontSeeDialogWithType(DIALOG_CONTENT_TYPES.error);
+    // Нажать кнопку "Удалить элемент" для заголовка [Кнопка "Удалить элемент" нажата, элемент удален]
+    await I.clickCmsElementActionButton({
+      elementName: CMS_ELEMENTS.printing.header.name,
+      buttonName: CMS_ELEMENT_ACTION_BUTTONS.delete,
+    });
+
+    // Проверить отсутствует ли заголовок [Заголовок отсутствует]
+    await seeCmsElementWithSettings(I, {
+      elementType: CMS_ELEMENTS.printing.header.type,
+      elementName: CMS_ELEMENTS.printing.header.name,
+      elementVisible: false,
+    });
+  }
+);
+
+//!SECTION - проверка кнопки "Дублировать элемент"
+
+Scenario(
+  `Проверка отсутствия кнопки "Дублировать элемент" у корневого элемента #${SCENARIO_LABEL}-5`,
+  async ({ I }) => {
+    // Авторизоваться и перейти в "Управление контентом" -> "Настройка представлений" [Окрыта страница "Управление контентом" -> "Настройка представлений"]
+    await openPageWithAuthentication({
+      I,
+      user: AUTOTEST_USER,
+      menuName: MENU_NAME.contentManagement,
+      pageData: MULTIVIEW[0],
+    });
+
+    // Нажать кнопку "Создать страницу" [Кнопка нажата, перешли на страницу создания представления]
+    await I.clickButtonView({ label: BUTTON_CREATE_PAGE });
+
+    // Выделить элемент "корневой элемент"
+    await I.selectCmsElementByNavigationName({
+      elementName: CMS_ELEMENTS.base.rootElement.name,
+    });
+
+    //NOTE - у кнопки "Дублировать элемент" нет атрибута data-cy
+    // Проверить отсутствие кнопки "Дублировать элемент" [Кнопка "Дублировать элемент" отсутствует]
+    await I.xPathCheckNotExists(`
+      //div[contains(@class, "SActionsContainer")]
+      //button[@title="Дублировать элемент"]`);
+  }
+);
+
+Scenario(
+  `Проверка работоспособности кнопки "Дублировать элемент" #${SCENARIO_LABEL}-6`,
+  async ({ I }) => {
+    // Авторизоваться и перейти в "Управление контентом" -> "Настройка представлений" [Окрыта страница "Управление контентом" -> "Настройка представлений"]
+    await openPageWithAuthentication({
+      I,
+      user: AUTOTEST_USER,
+      menuName: MENU_NAME.contentManagement,
+      pageData: MULTIVIEW[0],
+    });
+
+    // Нажать кнопку "Создать страницу" [Кнопка нажата, перешли на страницу создания представления]
+    await I.clickButtonView({ label: BUTTON_CREATE_PAGE });
+
+    // Выделить элемент "корневой элемент" [Корневой элемент выделен]
+    await I.selectCmsElementByNavigationName({
+      elementName: CMS_ELEMENTS.base.rootElement.name,
+    });
+
+    // Добавить элемент "заголовок" [Заголовок добавлен в представление]
+    await addCmsElement(I, {
+      elementName: CMS_ELEMENTS.printing.header.name,
+      elementType: CMS_ELEMENTS.printing.header.type,
+    });
+
+    //NOTE - у кнопки "Дублировать элемент" нет атрибута data-cy, невозможно
+    // использовать методы проверки существования кнопки и нажатия
+
+    // Проверить наличие кнопки "Дублировать элемент" у заголовка [Кнопка "Дублировать элемент" присутсвует]
+    await I.xPathCheck(`
+      //div[contains(@class, "SActionsContainer")]
+      //button[@title="Дублировать элемент"]`);
+
+    // Нажать кнопку "Дублировать элемент" [Кнопка нажата, элемент продублирован]
+    await I.xPathClick(`
+      //div[contains(@class, "SActionsContainer")]
+      //button[@title="Дублировать элемент"]`);
+
+    // Проверим, что заголовка 2 [Количество заголовков в представлении равно двум]
+    await I.checkElementsCountOnEditorBody({
+      elementType: CMS_ELEMENTS.printing.header.type,
+      parentName: CMS_ELEMENTS.layers.verticalContainer.name,
+      expectedElementsCount: 2,
+    });
+  }
+);
+
+//!SECTION - проверка кнопки "Изменить элемент"
+
+Scenario(
+  `Проверка работоспособности кнопки "Изменить элемент" для корневого элемента #${SCENARIO_LABEL}-7`,
+  async ({ I }) => {
+    // Авторизоваться и перейти в "Управление контентом" -> "Настройка представлений" [Окрыта страница "Управление контентом" -> "Настройка представлений"]
+    await openPageWithAuthentication({
+      I,
+      user: AUTOTEST_USER,
+      menuName: MENU_NAME.contentManagement,
+      pageData: MULTIVIEW[0],
+    });
+
+    // Нажать кнопку "Создать страницу" [Кнопка нажата, перешли на страницу создания представления]
+    await I.clickButtonView({ label: BUTTON_CREATE_PAGE });
+
+    // Выделить элемент "корневой элемент" [Корневой элемент выделен]
+    await I.selectCmsElementByNavigationName({
+      elementName: CMS_ELEMENTS.base.rootElement.name,
+    });
+
+    // Нажать кнопку "Изменить элемент" для корневого элемента (даже не смотря на отсутствие настроек, окно должно открыться) [Кнопка "Изменить элемент"] присутствует
+    await I.clickCmsElementActionButton({
+      elementName: CMS_ELEMENTS.base.rootElement.name,
+      buttonName: CMS_ELEMENT_ACTION_BUTTONS.edit,
+      //despite everything it's still has editor
+    });
+
+    // Появилось ли окно редактора для корневого элемента [Окно редактора для корневого элемента появилось]
+    await I.xPathCheck(
+      `//div[@${DATA_AUTOMATION_KEY}="${CMS_MODAL_ID}"]
+      /div[@${DATA_AUTOMATION_KEY}="content-panel-${CMS_ELEMENTS.base.rootElement.name}"]`
+    );
+  }
+);
+
+Scenario(
+  `Проверка работоспособности кнопки "Изменить элемент" #${SCENARIO_LABEL}-8`,
+  async ({ I }) => {
+    // Авторизоваться и перейти в "Управление контентом" -> "Настройка представлений" [Окрыта страница "Управление контентом" -> "Настройка представлений"]
+    await openPageWithAuthentication({
+      I,
+      user: AUTOTEST_USER,
+      menuName: MENU_NAME.contentManagement,
+      pageData: MULTIVIEW[0],
+    });
+
+    // Нажать кнопку "Создать страницу" [Кнопка нажата, перешли на страницу создания представления]
+    await I.clickButtonView({ label: BUTTON_CREATE_PAGE });
+
+    // Добавить элемент "заголовок"
+    await addCmsElement(I, {
+      elementName: CMS_ELEMENTS.printing.header.name,
+      elementType: CMS_ELEMENTS.printing.header.type,
+    });
+
+    // Нажать кнопку "Изменить элемент" для корневого элемента (даже не смотря на отсутствие настроек, окно должно открыться) [Кнопка нажата, открылось окно редактора]
+    await I.clickCmsElementActionButton({
+      elementName: CMS_ELEMENTS.printing.header.name,
+      buttonName: CMS_ELEMENT_ACTION_BUTTONS.edit,
+    });
+
+    // Появилось ли окно редактора для корневого элемента [Окно редактора появилось]
+    await I.xPathCheck(
+      `//div[@${DATA_AUTOMATION_KEY}="${CMS_MODAL_ID}"]
+      /div[@${DATA_AUTOMATION_KEY}="content-panel-${CMS_ELEMENTS.base.rootElement.name}"]`
+    );
+
+    // Правильное ли навигационное имя отображается в окне редактора [Навигационное имя элемента равно наименованию элемента]
+    await I.xPathCheck(
+      `//div[contains(@class, "editor__SHeader")]
+      //span[contains(@class, "editor__SLabel") and text()="${CMS_ELEMENTS.printing.header.name}"]`
+    );
   }
 );

@@ -2,7 +2,34 @@
     <p>
         <strong>Название автотеста:</strong> {{test.label}}
     </p>
-    <p>{{test.description}}</p>
+
+    {% if test.comment.autotest_users %}
+    <p>
+    <strong>
+        Пользователи:
+    </strong>
+    </p>
+    <ul>
+        {%for user in test.comment.autotest_users %}
+        <li>
+            <span class="small-text">
+                {{user}}
+            </span>
+        </li>
+        {%endfor%}
+    </ul>
+    {% endif %}
+
+    {% if test.comment.pre %}
+    <p>
+        <strong>
+            Предустановка:
+        </strong>
+    </p>
+    <span class="text-small">
+            {{test.comment.pre}}
+    </span>
+    {% endif %}
 
     {% for scenario in test.scenarios %}
     <p>

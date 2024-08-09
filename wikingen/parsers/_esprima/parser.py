@@ -1,4 +1,4 @@
-from re import sub
+
 from typing import Dict, List
 from esprima import parse as js_parse
 from esprima.syntax import Syntax
@@ -7,12 +7,12 @@ from esprima.nodes import (
     ExpressionStatement, CallExpression
 )
 
-from wikingen.test import Test
-from wikingen.scenario import Scenario, Step
+from wikingen.test import Test, EMPTY_COMMENT
 from wikingen.parsers.parser import Parser
 from wikingen.parsers.parser_exception import ParserException
 
 from .ast_traverse import traverse
+from .test_comment import TestCommentWrapper
 from .feature_expression import FeatureExpression
 from .scenario_expression import ScenarioExpression
 
@@ -20,7 +20,7 @@ from .scenario_expression import ScenarioExpression
 class EsprimaParser(Parser):
 
     _scenario_label: str
-    _scenario_description: str
+    _test_comment_wrapper: TestCommentWrapper
     _literal_table: Dict[str, str]
     _feature_expression: FeatureExpression = None
     _scenario_expressions: List[ScenarioExpression]
@@ -69,8 +69,8 @@ class EsprimaParser(Parser):
         if isinstance(current_node, Script):
             first_element = current_node.body[0]
             comments = first_element.leadingComments
-            if len(comments) > 0:
-                self._scenario_description = comments[0].value
+            self._test_comment_wrapper = (
+                TestCommentWrapper(comments[0]) if comments and len(comments) > 0 else None)
 
         # finding top level const literal declarations, like:
         # const SCENARIO_LABEL = "ScenarioName";
@@ -114,11 +114,11 @@ class EsprimaParser(Parser):
 
         scenario_label = self._literal_table["SCENARIO_LABEL"]
         feature_label = self._feature_expression.label
-        scenario_description = self._scenario_description
+        test_comment = self._test_comment_wrapper.test_comment if self._test_comment_wrapper else EMPTY_COMMENT
         scenarios = tuple([se.scenario for se in self._scenario_expressions])
 
         return Test(
             scenario_label,
+            test_comment,
             feature_label,
-            scenario_description,
             scenarios)

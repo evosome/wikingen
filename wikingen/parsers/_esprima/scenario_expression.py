@@ -1,5 +1,4 @@
 import re
-from re import match
 from typing import List, Tuple
 from esprima.syntax import Syntax
 from esprima.nodes import (
