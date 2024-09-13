@@ -1,6 +1,6 @@
 
 from .parser import Parser
-from ._esprima import EsprimaParser
+from ._esprima.parser import EsprimaParser
 
 default: Parser = EsprimaParser()
 

@@ -1,0 +1,80 @@
+<div class="contents">
+    <p>
+        <strong>Название автотеста:</strong> {{test.label}}
+    </p>
+
+    {% if test.comment.autotest_users %}
+    <p>
+    <strong>
+        Пользователи:
+    </strong>
+    </p>
+    <ul>
+        {%for user in test.comment.autotest_users %}
+        <li>
+            <span class="small-text">
+                {{user}}
+            </span>
+        </li>
+        {%endfor%}
+    </ul>
+    {% endif %}
+
+    {% if test.comment.pre %}
+    <p>
+        <strong>
+            Предустановка:
+        </strong>
+    </p>
+    <span class="text-small">
+            {{test.comment.pre}}
+    </span>
+    {% endif %}
+
+    {% for scenario in test.scenarios %}
+    <p>
+        <mark class="marker-yellow">{{loop.index}}.&nbsp; </mark>
+        <span class="small-text">...{{scenario.label}}</span>
+    </p>
+    <figure class="table">
+        <table
+            style="background-color: rgb(255, 255, 255); border-width: 1px; border-style: solid; border-color: rgb(224, 224, 224);">
+            <tbody>
+                <tr>
+                    <td
+                        style="background-color: rgb(77, 153, 230); border-width: 1px; border-style: solid; border-color: rgb(207, 216, 220); padding: 0.5rem 0.75rem;">
+                        <span class="text-small"><strong>Шаги</strong></span>
+                    </td>
+                    <td
+                        style="background-color: rgb(77, 153, 230); border-width: 1px; border-style: solid; border-color: rgb(207, 216, 220); padding: 0.5rem 0.75rem;">
+                        <strong>Результат</strong></td>
+                    <td
+                        style="background-color: rgb(77, 153, 230); border-width: 1px; border-style: solid; border-color: rgb(207, 216, 220); padding: 0.5rem 0.75rem;">
+                        <strong>Статус</strong></td>
+                </tr>
+                <tr>
+                    <td
+                        style="background-color: rgb(250, 250, 250); border-width: 1px; border-style: solid; border-color: rgb(207, 216, 220); padding: 0.5rem 0.75rem; vertical-align: top;">
+                        <ol>
+                            {% for step in scenario.steps %}
+                            <li class="text-small">{{step.label}}</li>
+                            {% endfor %}
+                        </ol>
+                    </td>
+                    <td
+                        style="background-color: rgb(245, 245, 245); border-width: 1px; border-style: solid; border-color: rgb(207, 216, 220); padding: 0.5rem 0.75rem; vertical-align: top;">
+                        <ol>
+                            {% for step in scenario.steps %}
+                            <li class="text-small">{{step.result}}</li>
+                            {% endfor %}
+                        </ol>
+                    </td>
+                    <td
+                        style="background-color: rgb(250, 250, 250); border-width: 1px; border-style: solid; border-color: rgb(207, 216, 220); padding: 0.5rem 0.75rem;">
+                        готов</td>
+                </tr>
+            </tbody>
+        </table>
+    </figure>
+    {% endfor %}
+</div>
